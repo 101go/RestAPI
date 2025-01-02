@@ -50,11 +50,25 @@ func getTodoById(context *gin.Context) {
 	context.IndentedJSON(http.StatusNotFound, gin.H{"message": "Todo not found"}) // if the todo is not found, return a status code of 404 with a message
 }
 
+// patch request: updating an item that already exists
+
+func toggleTodoStatus(context *gin.Context) {
+	id := context.Param("id") // get the id from the url
+	for index, todo := range todos {
+		if todo.ID == id {
+			todos[index].Compeleted = !todos[index].Compeleted
+			context.IndentedJSON(http.StatusOK, todos[index])
+			return
+		}
+	}
+}
+
 // run the app by running `go run main.go` in the terminal
 func main() {
 	router := gin.Default()               // create a new gin router, the router is our server
 	router.POST("/todos", addTodos)       // create a new route that listens to POST requests on /todos and calls the addTodos function when a request is made
 	router.GET("/todos", getTodos)        // create a new route that listens to GET requests on /todos and calls the getTodos function when a request is made
 	router.GET("/todos/:id", getTodoById) // create a new route that listens to GET requests on /todos/:id and calls the getTodoById function when a request is made
-	router.Run("localhost:9999")          // run the server on localhost:9999
+	router.POST("/todos/:id/toggle", toggleTodoStatus)
+	router.Run("localhost:9999") // run the server on localhost:9999
 }
